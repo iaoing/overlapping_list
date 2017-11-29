@@ -1,0 +1,9 @@
+*.a
+*.o
+*.dylib*
+*.so
+*.so.*
+*.exe
+*.o
+*.stackdump
+
