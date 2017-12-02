@@ -84,16 +84,20 @@
 
 #define NUMBER_BT(x, y, de)		(x < de && de < y);
 
-struct NInfo
+class NInfo
 {
-	std::vector<std::string> file_nos;
-	NInfo(){}
-	NInfo(std::string x){
-		file_nos.push_back(x);
-	}
-	NInfo(const char *x){
-		file_nos.push_back(std::string(x));
-	}	
+public:
+	NInfo();
+	NInfo(std::string);
+	void add(NInfo*);
+	void add(std::string);
+	std::vector<std::string>::iterator begin();
+	std::vector<std::string>::iterator end();
+	size_t size();
+	void visit();
+
+private:
+	std::vector<std::string> info_vc_;
 };
 
 class OLLNode
@@ -127,6 +131,7 @@ public:
 	OLList();
 	~OLList();
 	int add(int x, int y, NInfo *info);
+	int add(int x, int y, std::string info);
 	int get_num();
 	int get_infos();
 

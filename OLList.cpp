@@ -2,14 +2,52 @@
 * @Author: bing Jiao
 * @Date:   2017-11-28 14:46:46
 * @Last Modified by:   bing Jiao
-* @Last Modified time: 2017-11-29 17:00:00
+* @Last Modified time: 2017-12-02 23:40:30
 */
 
 #include "OLList.h"
 
 //////////////////////////////
+// NInfo;
+NInfo::NInfo(){
+}
+
+NInfo::NInfo(std::string str){
+	info_vc_.push_back(str);
+}
+
+void NInfo::add(NInfo *ni){
+	info_vc_.insert(info_vc_.end(), ni->begin(), ni->end());
+}
+
+void NInfo::add(std::string str){
+	info_vc_.push_back(str);
+}
+
+std::vector<std::string>::iterator NInfo::begin(){
+	return info_vc_.begin();
+}
+
+std::vector<std::string>::iterator NInfo::end(){
+	return info_vc_.end();
+}
+
+size_t NInfo::size(){
+	return info_vc_.size();
+}
+
+void NInfo::visit(){
+	for(int i = 0; i < info_vc_.size(); ++i){
+		printf("%s, ", info_vc_[i]);
+	}
+	printf("\n");
+}
+
+//////////////////////////////
 // OLLNode;
 OLLNode::OLLNode() :
+	x_(-1),
+	y_(-1),
 	prev_(NULL),
 	next_(NULL),
 	info_(NULL){
@@ -51,17 +89,14 @@ int OLLNode::insert(OLLNode *node){
 int OLLNode::add_info(NInfo *info){
 	if(info == NULL)
 		return 0;
-	for(int i = 0; i < info->file_nos.size(); ++i){
-		info_->file_nos.push_back(info->file_nos[i]);
-	}
+	info_->add(info);
 }
 
+// split [x,y) to [x,de) and [de,y);
 int OLLNode::split(int de){
 	ASSERT_BT(x_, y_, de);
 	NInfo *ii = new NInfo();
-	for(auto i : info_->file_nos){
-		ii->file_nos.push_back(i);
-	}
+	ii->add(info_);
 	OLLNode node(de, y_, ii);
 	insert(&node);
 	y_ = de;
@@ -74,13 +109,9 @@ int OLLNode::fission(int de){
 
 void OLLNode::visit(){
 	printf("range: [%8d, %8d); ", x_, y_);
-	printf("size of info: %4d\n", info_->file_nos.size());
+	printf("size of info: %4d\n", info_->size());
 	printf("       infomation: ");
-	// if(!info_->file_nos.empty()){
-	// 	for(int i = 0; i < info_->file_nos.size(); ++i){
-	// 		printf("%s, ", info_->file_nos[i].c_str());
-	// 	}
-	// }
+	info_->visit();
 	printf("\n");
 }
 
@@ -118,7 +149,6 @@ int OLList::add(int x, int y, NInfo *info){
 	 				++num_; 
 	 				return ret;					
  				}else{
- 					// ptr->add_info(info);
 	 				OLLNode *node = new OLLNode(x, ptr->x_, info);
 	 				ptr->prev_->insert(node);
 	 				++num_;
