@@ -2,7 +2,7 @@
 * @Author: bing Jiao
 * @Date:   2017-11-28 14:46:46
 * @Last Modified by:   bing Jiao
-* @Last Modified time: 2017-11-28 15:39:33
+* @Last Modified time: 2017-12-03 19:50:24
 */
 
 #ifndef BING16_OVER_LAPPING_LIST_H_
@@ -88,9 +88,10 @@ class NInfo
 {
 public:
 	NInfo();
+	NInfo(const char *);
 	NInfo(std::string);
-	void add(NInfo*);
-	void add(std::string);
+	NInfo* add(NInfo*);
+	NInfo* add(std::string);
 	std::vector<std::string>::iterator begin();
 	std::vector<std::string>::iterator end();
 	size_t size();
@@ -116,9 +117,9 @@ public:
 	~OLLNode();
 
 	int insert(OLLNode *node);
-	int add_info(NInfo *info);
-	int split(int de);
-	int fission(int de);
+	OLLNode* add_info(NInfo *info);
+	OLLNode* split(int de);
+	OLLNode* replace_by(OLLNode *new_node);
 
 // for debug;
 public:
@@ -131,7 +132,7 @@ public:
 	OLList();
 	~OLList();
 	int add(int x, int y, NInfo *info);
-	int add(int x, int y, std::string info);
+	// int add(int x, int y, std::string info);
 	int get_num();
 	int get_infos();
 

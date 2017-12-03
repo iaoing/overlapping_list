@@ -2,7 +2,7 @@
 * @Author: bing Jiao
 * @Date:   2017-11-28 14:46:46
 * @Last Modified by:   bing Jiao
-* @Last Modified time: 2017-12-02 23:40:30
+* @Last Modified time: 2017-12-03 19:50:24
 */
 
 #include "OLList.h"
@@ -12,16 +12,22 @@
 NInfo::NInfo(){
 }
 
+NInfo::NInfo(const char *ch){
+	info_vc_.push_back(std::string(ch));
+}
+
 NInfo::NInfo(std::string str){
 	info_vc_.push_back(str);
 }
 
-void NInfo::add(NInfo *ni){
+NInfo* NInfo::add(NInfo *ni){
 	info_vc_.insert(info_vc_.end(), ni->begin(), ni->end());
+	return this;
 }
 
-void NInfo::add(std::string str){
+NInfo* NInfo::add(std::string str){
 	info_vc_.push_back(str);
+	return this;
 }
 
 std::vector<std::string>::iterator NInfo::begin(){
@@ -38,7 +44,7 @@ size_t NInfo::size(){
 
 void NInfo::visit(){
 	for(int i = 0; i < info_vc_.size(); ++i){
-		printf("%s, ", info_vc_[i]);
+		printf("%s, ", info_vc_[i].c_str());
 	}
 	printf("\n");
 }
@@ -86,32 +92,37 @@ int OLLNode::insert(OLLNode *node){
 	return 0;
 }
 
-int OLLNode::add_info(NInfo *info){
+OLLNode* OLLNode::add_info(NInfo *info){
 	if(info == NULL)
 		return 0;
 	info_->add(info);
+	return this;
 }
 
 // split [x,y) to [x,de) and [de,y);
-int OLLNode::split(int de){
+OLLNode* OLLNode::split(int de){
 	ASSERT_BT(x_, y_, de);
 	NInfo *ii = new NInfo();
 	ii->add(info_);
-	OLLNode node(de, y_, ii);
-	insert(&node);
+	OLLNode *node = new OLLNode(de, y_, ii);
+	insert(node);
 	y_ = de;
-	return 0;
+	return this;
 }
 
-int OLLNode::fission(int de){
-	// if()
+OLLNode* OLLNode::replace_by(OLLNode *new_node){
+	new_node->next_ = next_;
+	new_node->prev_ = prev_;
+	next_->prev_ = new_node;
+	prev_->next_ = new_node;
+	return new_node;
 }
 
 void OLLNode::visit(){
 	printf("range: [%8d, %8d); ", x_, y_);
 	printf("size of info: %4d\n", info_->size());
-	printf("       infomation: ");
-	info_->visit();
+	// printf("       infomation: ");
+	// info_->visit();
 	printf("\n");
 }
 
@@ -153,26 +164,34 @@ int OLList::add(int x, int y, NInfo *info){
 	 				ptr->prev_->insert(node);
 	 				++num_;
 	 				if(y > ptr->y_){
-	 					ptr->add_info(info);
+	 					ptr = ptr->add_info(info);
 	 					x = ptr->y_;
 	 				}else if(y == ptr->y_){
-	 					ptr->add_info(info);
+	 					ptr = ptr->add_info(info);
 	 					return ret;
 	 				}else{
-	 					ptr->split(y);
-	 					ptr->add_info(info);
+	 					ptr = ptr->split(y);
+	 					ptr = ptr->add_info(info);
 	 					++num_;	
 	 					return ret;
 	 				}
 	 			}
- 			}else if(x < ptr->y_){
- 				if(y <= ptr->y_){
-					ptr->add_info(info);
-	 				return ret;					
- 				}else{
- 					ptr->add_info(info);
+ 			}else if(x == ptr->x_){
+ 				if(y > ptr->y_){
+ 					ptr = ptr->add_info(info);
  					x = ptr->y_;
-	 			}
+ 				}else if(y == ptr->y_){
+ 					ptr = ptr->add_info(info);
+ 					return ret;
+ 				}else{
+ 					ptr = ptr->split(y);
+ 					ptr = ptr->add_info(info);
+ 					++num_;	
+ 					return ret;
+ 				}
+ 			}else if(x < ptr->y_){
+ 				ptr = ptr->split(x);
+ 				++num_;
  			}
  			ptr = ptr->next_;
  		}
