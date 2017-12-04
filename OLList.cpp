@@ -2,7 +2,7 @@
 * @Author: bing Jiao
 * @Date:   2017-11-28 14:46:46
 * @Last Modified by:   bing Jiao
-* @Last Modified time: 2017-12-03 19:50:24
+* @Last Modified time: 2017-12-04 21:24:12
 */
 
 #include "OLList.h"
@@ -118,6 +118,20 @@ OLLNode* OLLNode::replace_by(OLLNode *new_node){
 	return new_node;
 }
 
+bool OLLNode::hit_it(int q){
+	if(x_ <= q && q < y_)
+		return true;
+	return false;
+}
+
+bool OLLNode::hit_it(int q_left, int q_right){
+	if(    (x_ <= q_left && q_left < y_) 
+		|| (x_ < q_right && q_right < y_)
+		|| (q_left < x_  && y_ <= q_right) )
+		return true;
+	return false;	
+}
+
 void OLLNode::visit(){
 	printf("range: [%8d, %8d); ", x_, y_);
 	printf("size of info: %4d\n", info_->size());
@@ -200,6 +214,58 @@ int OLList::add(int x, int y, NInfo *info){
 		++num_;		
 	}
 	return ret;
+}
+
+// NInfo* OLList::retrive_info(int x){
+// 	OLLNode *node;
+// 	node = header_.next_;
+// 	while(node != &header_){
+// 		if(node->hit_it(x)){
+// 			return node->info_;
+// 		}
+// 		node = node->next_;
+// 	}
+// 	return NULL;
+// }
+
+// std::vector<NInfo*> OLList::retrive_info(int x, int y){
+// 	ASSERT_LT(x, y);
+// 	std::vector<NInfo*> target;
+// 	OLLNode *node;
+// 	node = header_.next_;
+// 	while(node != &header_){
+// 		if(node->hit_it(x, y)){
+// 			target.push_back(node->info_);
+// 		}
+// 		node = node->next_;
+// 	}
+// 	return target;
+// }
+
+OLLNode* OLList::retrive_info(int x){
+	OLLNode *node;
+	node = header_.next_;
+	while(node != &header_){
+		if(node->hit_it(x)){
+			return node;
+		}
+		node = node->next_;
+	}
+	return NULL;
+}
+
+std::vector<OLLNode*> OLList::retrive_info(int x, int y){
+	ASSERT_LT(x, y);
+	std::vector<OLLNode*> target;
+	OLLNode *node;
+	node = header_.next_;
+	while(node != &header_){
+		if(node->hit_it(x, y)){
+			target.push_back(node);
+		}
+		node = node->next_;
+	}
+	return target;
 }
 
 int OLList::get_num(){

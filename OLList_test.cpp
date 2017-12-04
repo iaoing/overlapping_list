@@ -2,7 +2,7 @@
 * @Author: bing Jiao
 * @Date:   2017-11-29 14:51:42
 * @Last Modified by:   bing Jiao
-* @Last Modified time: 2017-12-03 19:48:17
+* @Last Modified time: 2017-12-04 21:26:28
 */
 
 #include "OLList.h"
@@ -126,15 +126,152 @@ void TEST_random(int N){
 		int y = x + abs((((int)rand()) * ((int)rand())) % 10000);
 		NInfo *info = new NInfo(buf);
 		ot.add(x, y, info);
+		// printf("[%5d, %5d)\n", x, y);
 	}
 	ot.visit();
 	printf("\n");
 	free(buf);
 }
 
+///////////////////// query seq one ///////////////
+void TEST_query_seq_one(int N){
+	printf("#### TEST_query_seq_one: %d\n", N);
+	OLList ot;
+	char *buf;
+	buf = (char*)malloc(99);
+	for(int i = 0; i < N; ++i){
+		sprintf(buf, "seq-%04d", i+1);
+		int x = i+1;
+		int y = i+2;
+		NInfo *info = new NInfo(buf);
+		ot.add(x, y, info);
+	}	
+	free(buf);
+
+	// query;
+	OLLNode *target;
+	int query_count = 10;
+	for(int i = 0; i < query_count; ++i){
+		int x = abs(((int)rand()) * ((int)rand())) % (2*N);
+		target = ot.retrive_info(x);
+		if(target == NULL){
+			printf("%5d is not in this list.\n", x);
+		}else{
+			printf("%5d is founded! OLLNode's range: [%5d, %5d); NInfo's size: %d\n", x, target->x_, target->y_, target->info_->size());
+			// target->visit();
+			// printf("\n\n");
+		}
+	}	
+}
+
+///////////////////// query seq range ///////////////
+void TEST_query_seq_range(int N){
+	printf("#### TEST_query_seq_range: %d\n", N);
+	OLList ot;
+	char *buf;
+	buf = (char*)malloc(99);
+	for(int i = 0; i < N; ++i){
+		sprintf(buf, "seq-%04d", i+1);
+		int x = i+1;
+		int y = i+2;
+		NInfo *info = new NInfo(buf);
+		ot.add(x, y, info);
+	}	
+	free(buf);
+
+	// query;
+	int query_count = 10;
+	std::vector<OLLNode*> target;
+	for(int i = 0; i < query_count; ++i){
+		int x = abs(((int)rand()) * ((int)rand())) % (2*N);
+		int y = x + abs(((int)rand()) * ((int)rand())) % (N/10) + 1;
+		// int x = 1;
+		// int y = 20;
+		target = ot.retrive_info(x, y);
+		if(target.empty()){
+			printf("[%5d, %5d) is not in this list.\n", x, y);
+		}else{
+			printf("[%5d, %5d) is founded! Target's size: %d\n", x, y, target.size());
+			for (int i = 0; i < target.size(); ++i)
+			{
+				printf("[%5d, %5d): %3d; ", target[i]->x_, target[i]->y_, target[i]->info_->size());
+			}
+			printf("\n\n");
+		}
+	}	
+}
+
+///////////////////// query random one ///////////////
+void TEST_query_random_one(int N){
+	printf("#### TEST_query_random_one: %d\n", N);
+	OLList ot;
+	char *buf;
+	buf = (char*)malloc(99);
+	for(int i = 0; i < N; ++i){
+		sprintf(buf, "seq-%04d", i+1);
+		int x = abs(((int)rand()) * ((int)rand())) % 10000;
+		int y = x + abs((((int)rand()) * ((int)rand())) % 10000);
+		NInfo *info = new NInfo(buf);
+		ot.add(x, y, info);
+	}	
+	free(buf);
+
+	// query;
+	OLLNode *target;
+	int query_count = 10;
+	for(int i = 0; i < query_count; ++i){
+		int x = abs(((int)rand()) * ((int)rand())) % 10000;
+		target = ot.retrive_info(x);
+		if(target == NULL){
+			printf("%5d is not in this list.\n", x);
+		}else{
+			printf("%5d is founded! OLLNode's range: [%5d, %5d); NInfo's size: %d\n", x, target->x_, target->y_, target->info_->size());
+			// target->visit();
+			printf("\n\n");
+		}
+	}	
+}
+
+///////////////////// query random range ///////////////
+void TEST_query_random_range(int N){
+	printf("#### TEST_query_random_range: %d\n", N);
+	OLList ot;
+	char *buf;
+	buf = (char*)malloc(99);
+	for(int i = 0; i < N; ++i){
+		sprintf(buf, "seq-%04d", i+1);
+		int x = abs(((int)rand()) * ((int)rand())) % 10000;
+		int y = x + abs((((int)rand()) * ((int)rand())) % 10000);
+		NInfo *info = new NInfo(buf);
+		ot.add(x, y, info);
+	}	
+	free(buf);
+
+	// query;
+	int query_count = 10;
+	std::vector<OLLNode*> target;
+	for(int i = 0; i < query_count; ++i){
+		int x = abs(((int)rand()) * ((int)rand())) % 10000;
+		int y = x + abs((((int)rand()) * ((int)rand())) % 100);
+		target = ot.retrive_info(x, y);
+		if(target.empty()){
+			printf("[%5d, %5d) is not in this list.\n", x, y);
+		}else{
+			printf("[%5d, %5d) is founded! Target's size: %d\n", x, y, target.size());
+			for (int i = 0; i < target.size(); ++i)
+			{
+				printf("[%5d, %5d): %3d; ", target[i]->x_, target[i]->y_, target[i]->info_->size());
+			}
+			printf("\n\n");
+		}
+	}	
+}
+
 ///////////////////// error argv ///////////////
 void err_usage(const char *cmd){
-	printf("usage: %s --type=<int>(1:seq; 2:random) --num=<int>([1-999])\n", cmd);
+	printf("usage: %s --type=<int>(1:seq; 2:random; \
+			3:query_random_one, 4:query_random_range; \
+			5:query_seq_one, 6:query_seq_range;) --num=<int>([1-999])\n", cmd);
 	exit(1);	
 }
 
@@ -146,7 +283,7 @@ int main(int argc, char const *argv[])
 	}else{
 		char junk;
 		if(sscanf(argv[1], "--type=%d%c", &type, &junk) == 1){
-			if(!(type==1 || type==2)){
+			if(!(type==1 || type==2 || type==3 || type==4 || type==5 || type==6)){
 				err_usage(argv[0]);
 			}
 		}else{
@@ -178,6 +315,14 @@ int main(int argc, char const *argv[])
 		TEST_seq(N);
 	}else if(type ==2){
 		TEST_random(N);
+	}else if(type==3){
+		TEST_query_random_one(N);
+	}else if(type==4){
+		TEST_query_random_range(N);
+	}else if(type==5){
+		TEST_query_seq_one(N);
+	}else if(type==6){
+		TEST_query_seq_range(N);
 	}
 	
 	return 0;

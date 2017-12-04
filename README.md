@@ -1,4 +1,8 @@
-## overlapping list -- not finished!
+## overlapping list  
+
+- Spliting nodes when overlapping and guaranteeing infomations not lost.
+- When query one or a range of numbers, return all the targets.
+- Not support delete operation (This operation will be involve garbage collect and nodes merge, maybe supported in the future).
 
 #### no overlapping
 

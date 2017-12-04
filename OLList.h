@@ -2,7 +2,7 @@
 * @Author: bing Jiao
 * @Date:   2017-11-28 14:46:46
 * @Last Modified by:   bing Jiao
-* @Last Modified time: 2017-12-03 19:50:24
+* @Last Modified time: 2017-12-04 21:26:28
 */
 
 #ifndef BING16_OVER_LAPPING_LIST_H_
@@ -121,6 +121,9 @@ public:
 	OLLNode* split(int de);
 	OLLNode* replace_by(OLLNode *new_node);
 
+	bool hit_it(int x);
+	bool hit_it(int x, int y); // range query;	
+
 // for debug;
 public:
 	void visit();
@@ -132,7 +135,10 @@ public:
 	OLList();
 	~OLList();
 	int add(int x, int y, NInfo *info);
-	// int add(int x, int y, std::string info);
+	// NInfo* retrive_info(int x);
+	// std::vector<NInfo*> retrive_info(int x, int y); // range query;	
+	OLLNode* retrive_info(int x);
+	std::vector<OLLNode*> retrive_info(int x, int y); // range query;	
 	int get_num();
 	int get_infos();
 
