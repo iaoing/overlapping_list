@@ -2,7 +2,7 @@
 * @Author: bing Jiao
 * @Date:   2017-11-28 14:46:46
 * @Last Modified by:   bing Jiao
-* @Last Modified time: 2017-12-04 21:24:12
+* @Last Modified time: 2017-12-05 18:48:29
 */
 
 #include "OLList.h"
@@ -99,14 +99,35 @@ OLLNode* OLLNode::add_info(NInfo *info){
 	return this;
 }
 
-// split [x,y) to [x,de) and [de,y);
-OLLNode* OLLNode::split(int de){
-	ASSERT_BT(x_, y_, de);
+// split [x,y] to [x,de] and [de+1,y];
+// OLLNode* OLLNode::split(int de){
+// 	ASSERT_BT(x_, y_, de);
+// 	NInfo *ii = new NInfo();
+// 	ii->add(info_);
+// 	OLLNode *node = new OLLNode(de+1, y_, ii);
+// 	insert(node);
+// 	y_ = de;
+// 	return this;
+// }
+
+// [x,y] --> [left(x),right] and [right+1,y] if x == left;
+// [x,y] --> [x,left-1] and [left,right(y)] if y == right;
+OLLNode* OLLNode::split(int left, int right){
+	ASSERT_IN(x_, y_, left);
+	ASSERT_IN(x_, y_, right);
+	if(left == x_ && right == y_)
+		return this;
 	NInfo *ii = new NInfo();
 	ii->add(info_);
-	OLLNode *node = new OLLNode(de, y_, ii);
+	OLLNode *node;
+	if(left == x_){
+		node = new OLLNode(right+1, y_, ii);
+		y_ = right;
+	}else{
+		node = new OLLNode(left, y_, ii);
+		y_ = left - 1;
+	}
 	insert(node);
-	y_ = de;
 	return this;
 }
 
@@ -119,21 +140,21 @@ OLLNode* OLLNode::replace_by(OLLNode *new_node){
 }
 
 bool OLLNode::hit_it(int q){
-	if(x_ <= q && q < y_)
+	if(x_ <= q && q <= y_)
 		return true;
 	return false;
 }
 
 bool OLLNode::hit_it(int q_left, int q_right){
-	if(    (x_ <= q_left && q_left < y_) 
-		|| (x_ < q_right && q_right < y_)
-		|| (q_left < x_  && y_ <= q_right) )
+	if(    (x_ <= q_left && q_left <= y_) 
+		|| (x_ <= q_right && q_right <= y_)
+		|| (q_left < x_  && y_ < q_right) )
 		return true;
 	return false;	
 }
 
 void OLLNode::visit(){
-	printf("range: [%8d, %8d); ", x_, y_);
+	printf("range: [%8d, %8d]; ", x_, y_);
 	printf("size of info: %4d\n", info_->size());
 	// printf("       infomation: ");
 	// info_->visit();
@@ -154,7 +175,7 @@ OLList::~OLList(){
 }
 
 int OLList::add(int x, int y, NInfo *info){
-	ASSERT_LT(x, y);
+	ASSERT_NLT(x, y);
 	int ret = 0;
 	++noi_;
 	if(num_ == 0){
@@ -168,23 +189,23 @@ int OLList::add(int x, int y, NInfo *info){
 		OLLNode *ptr = header_.next_;
 		while(ptr != (&header_)){
  			if(x < ptr->x_){
- 				if(y <= ptr->x_){
+ 				if(y < ptr->x_){
 					OLLNode *node = new OLLNode(x, y, info);
 	 				ptr->prev_->insert(node);
 	 				++num_; 
 	 				return ret;					
  				}else{
-	 				OLLNode *node = new OLLNode(x, ptr->x_, info);
+	 				OLLNode *node = new OLLNode(x, ptr->x_ - 1, info);
 	 				ptr->prev_->insert(node);
 	 				++num_;
 	 				if(y > ptr->y_){
 	 					ptr = ptr->add_info(info);
-	 					x = ptr->y_;
+	 					x = ptr->y_ + 1;
 	 				}else if(y == ptr->y_){
 	 					ptr = ptr->add_info(info);
 	 					return ret;
 	 				}else{
-	 					ptr = ptr->split(y);
+	 					ptr = ptr->split(ptr->x_, y);
 	 					ptr = ptr->add_info(info);
 	 					++num_;	
 	 					return ret;
@@ -193,18 +214,18 @@ int OLList::add(int x, int y, NInfo *info){
  			}else if(x == ptr->x_){
  				if(y > ptr->y_){
  					ptr = ptr->add_info(info);
- 					x = ptr->y_;
+ 					x = ptr->y_ + 1;
  				}else if(y == ptr->y_){
  					ptr = ptr->add_info(info);
  					return ret;
  				}else{
- 					ptr = ptr->split(y);
+ 					ptr = ptr->split(x, y);
  					ptr = ptr->add_info(info);
  					++num_;	
  					return ret;
  				}
- 			}else if(x < ptr->y_){
- 				ptr = ptr->split(x);
+ 			}else if(x <= ptr->y_){
+ 				ptr = ptr->split(ptr->x_, x-1);
  				++num_;
  			}
  			ptr = ptr->next_;
@@ -255,7 +276,7 @@ OLLNode* OLList::retrive_info(int x){
 }
 
 std::vector<OLLNode*> OLList::retrive_info(int x, int y){
-	ASSERT_LT(x, y);
+	ASSERT_NLT(x, y);
 	std::vector<OLLNode*> target;
 	OLLNode *node;
 	node = header_.next_;

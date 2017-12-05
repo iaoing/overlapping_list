@@ -2,7 +2,7 @@
 * @Author: bing Jiao
 * @Date:   2017-11-28 14:46:46
 * @Last Modified by:   bing Jiao
-* @Last Modified time: 2017-12-04 21:26:28
+* @Last Modified time: 2017-12-05 18:53:04
 */
 
 #ifndef BING16_OVER_LAPPING_LIST_H_
@@ -62,6 +62,16 @@
 			}					\
 		}while(0);
 
+// ASSERT x is No Less Than y (x < y)
+#define ASSERT_NLT(x, y)			\
+		do{						\
+			if(x > y){			\
+				fprintf(stderr, "ASSERT_LT: %d is not not less than %d!\n", x, y);	\
+				fflush(stderr);	\
+				exit(1);		\
+			}					\
+		}while(0);
+
 // ASSERT x is Equal to y (x == y)
 #define ASSERT_EQ(x, y)			\
 		do{						\
@@ -80,9 +90,20 @@
 				fflush(stderr);	\
 				exit(1);		\
 			}					\
+		}while(0);
+
+// ASSERT de is IN [x, y] (x <= de <= y)
+#define ASSERT_IN(x, y, de)		\
+		do{						\
+			if(!(x <= de && de <= y)){			\
+				fprintf(stderr, "ASSERT_BT: %d is not in [%d, %d]!\n", de, x, y);	\
+				fflush(stderr);	\
+				exit(1);		\
+			}					\
 		}while(0);		
 
 #define NUMBER_BT(x, y, de)		(x < de && de < y);
+#define NUMBER_IN(x, y, de)		(x <= de && de <= y);
 
 class NInfo
 {
@@ -118,7 +139,8 @@ public:
 
 	int insert(OLLNode *node);
 	OLLNode* add_info(NInfo *info);
-	OLLNode* split(int de);
+	// OLLNode* split(int de);
+	OLLNode* split(int left, int right);
 	OLLNode* replace_by(OLLNode *new_node);
 
 	bool hit_it(int x);
